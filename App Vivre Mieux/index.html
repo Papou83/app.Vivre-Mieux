@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vivre Mieux - Ton Arbitre de Poche</title>
     <style>
-        /* TON DESIGN BLEU CIEL */
+        /* DESIGN GLOBAL */
         body {
             background-color: #E0F7FA;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,40 +18,64 @@
 
         .header { text-align: center; margin-bottom: 20px; }
         
-        /* LE COFFRE FORT */
+        /* ZONE COFFRE AVEC ROUAGE À GAUCHE */
         .coffre {
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 90%;
+            width: 95%;
             max-width: 400px;
             text-align: center;
             margin-bottom: 20px;
+            position: relative; /* Pour placer le rouage par rapport à ce cadre */
         }
 
-        .pouce { font-size: 40px; }
+        .btn-param-coffre {
+            position: absolute;
+            top: 10px;
+            left: 10px; /* ROUAGE EN HAUT À GAUCHE */
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .pouce { font-size: 45px; margin-bottom: 5px; }
 
         /* ZONE DE SAISIE */
         .saisie-zone {
             background: #B3E5FC;
             padding: 20px;
             border-radius: 20px;
-            width: 90%;
+            width: 95%;
             max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .btn-edit-budget {
+            background: #0277BD;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            width: 100%;
         }
 
         input {
             width: 100%;
             padding: 15px;
             border-radius: 10px;
-            border: none;
+            border: 2px solid #81D4FA;
             font-size: 18px;
             margin-top: 10px;
             box-sizing: border-box;
         }
 
-        button {
+        .btn-principal {
             background-color: #0288D1;
             color: white;
             border: none;
@@ -62,20 +86,23 @@
             font-weight: bold;
             margin-top: 15px;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* L'ECRAN VERDICT (Caché au début) */
+        /* ECRAN VERDICT */
         #verdict-screen {
             display: none;
             text-align: center;
-            margin-top: 20px;
+            width: 95%;
+            max-width: 400px;
         }
 
         .photo-reve {
             width: 100%;
             border-radius: 15px;
-            margin-top: 10px;
+            margin-top: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -87,124 +114,149 @@
     </div>
 
     <div class="coffre">
+        <button onclick="modifierCoffre()" class="btn-param-coffre" title="Modifier l'objectif">⚙️</button>
         <div class="pouce">👍</div>
-        <strong>Ton Coffre est plein</strong>
-        <p style="font-size: 12px;">Toutes tes factures sont payées.</p>
+        <strong id="titre-coffre">Ton Coffre est plein</strong>
+        <p id="msg-coffre" style="font-size: 12px; color: #546E7A;">Toutes tes factures sont payées.</p>
     </div>
 
     <div class="saisie-zone" id="saisie-form">
-        <label>Combien veux-tu dépenser ?</label>
-        <input type="number" id="montant" placeholder="Ex: 40 €">
-        <button onclick="donnerVerdict()">JE CRAQUE OU PAS ?</button>
+        <p id="label-budget" style="font-weight: bold; margin-bottom: 5px;">Chargement du budget...</p>
+        <button onclick="modifierBudget()" class="btn-edit-budget">✏️ Modifier mon budget semaine</button>
+        
+        <label style="display:block; margin-top: 10px;">Combien veux-tu dépenser ?</label>
+        <input type="number" id="montant" placeholder="Ex: 45 €">
+        <button class="btn-principal" onclick="donnerVerdict()">JE CRAQUE OU PAS ?</button>
     </div>
+
     <div id="verdict-screen">
         <h2 id="verdict-titre"></h2>
         <p id="verdict-msg"></p>
         
-        <p><strong>Ton Plaisir Futur :</strong></p>
+        <p style="margin-top: 20px;"><strong>Rappelle-toi ton rêve :</strong></p>
         <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="loadPhoto(event)">
-        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500" id="photoAffiche" class="photo-reve" onclick="document.getElementById('imageInput').click()">
-        <p style="font-size: 10px;">(Clique sur l'image pour changer ton rêve)</p>
-        <div id="zone-pub" style="margin: 20px 0; padding: 10px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-</div>
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500" id="photoAffiche" class="photo-reve" onclick="document.getElementById('imageInput').click()" title="Clique pour changer l'image">
+        
+        <div id="zone-pub" style="margin: 20px 0; padding: 15px; background: white; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></div>
 
-        <button id="btn-confirmer" onclick="confirmerAchat()" style="background:#2E7D32; margin-top:20px;">J'AI ACHETÉ ! ✅</button>
-        <div id="zone-pub" style="margin-top: 20px; padding: 10px; border: 1px dashed #0288D1; border-radius: 10px; background: #f0faff;">
-    <p style="font-size: 12px; margin: 0; color: #546E7A;">💡 BON PLAN VIVRE MIEUX</p>
-    <a id="lien-pub" href="https://www.backmarket.fr" target="_blank" style="text-decoration: none; color: #0277BD; font-weight: bold; font-size: 14px;">
-        Trop cher en neuf ? Regarde ici d'occasion !
-    </a>
-</div>
-        <button onclick="location.reload()" style="background:#546E7A; margin-top:10px;">RETOUR / ANNULER</button>
+        <button onclick="confirmerAchat()" style="background:#2E7D32; color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer;">J'AI ACHETÉ ! ✅</button>
+        
+        <button onclick="location.reload()" style="background:#546E7A; color:white; border:none; padding:10px; width:100%; border-radius:10px; margin-top:10px; cursor:pointer;">RETOUR / ANNULER</button>
     </div>
-   
 
 <script>
-// Au chargement, on vérifie si un budget existe déjà
+// VARIABLES GLOBALES
+window.budgetSemaine = 0;
+
+// CHARGEMENT INITIAL
 window.onload = function() {
     const budgetSauvegarde = localStorage.getItem('budgetHebdo');
+    const texteCoffre = localStorage.getItem('texteCoffre');
+    const photoSauvegardee = localStorage.getItem('maPhotoReve');
+
     if (budgetSauvegarde) {
         window.budgetSemaine = parseFloat(budgetSauvegarde);
         actualiserAffichage();
     } else {
-        configurerBudget();
+        modifierBudget();
+    }
+
+    if (texteCoffre) {
+        document.getElementById('titre-coffre').innerText = texteCoffre;
+    }
+
+    if (photoSauvegardee) {
+        document.getElementById('photoAffiche').src = photoSauvegardee;
     }
 }
 
-function configurerBudget() {
-    const nouveauBudget = prompt("Bienvenue ! Quel est ton budget pour la semaine ? (en €)", "100");
-    if (nouveauBudget) {
-        localStorage.setItem('budgetHebdo', nouveauBudget);
-        window.budgetSemaine = parseFloat(nouveauBudget);
+// FONCTION : CHANGER LE BUDGET
+function modifierBudget() {
+    const nouveau = prompt("Quel est ton budget total pour cette semaine ? (en €)", window.budgetSemaine || "100");
+    if (nouveau !== null && nouveau !== "") {
+        localStorage.setItem('budgetHebdo', nouveau);
+        window.budgetSemaine = parseFloat(nouveau);
         actualiserAffichage();
     }
 }
 
-function actualiserAffichage() {
-    // On met à jour le texte du budget affiché
-    const zoneBudget = document.querySelector('.saisie-zone label');
-    zoneBudget.innerText = "Budget restant : " + window.budgetSemaine + " € | Dépense :";
-}
-
-function donnerVerdict() {
-    const montant = parseFloat(document.getElementById('montant').value);
-    
-    // ... (on garde le début de ta fonction pour cacher/afficher l'écran) ...
-    document.getElementById('saisie-form').style.display = 'none';
-    document.getElementById('verdict-screen').style.display = 'block';
-
-    const zonePub = document.getElementById('zone-pub');
-
-    // --- C'EST ICI QUE TU METS TON CODE AMAZON ---
-    
-    // Exemple : Si l'achat est de moins de 50€, on propose un livre de budget sur Amazon
-    if (montant < 50) {
-        zonePub.innerHTML = `
-            <div style="text-align: left; border-left: 4px solid #FF9900; padding-left: 10px;">
-                <span style="color: #FF9900; font-weight: bold; font-size: 12px;">OFFRE AMAZON</span><br>
-                <p style="font-size: 14px; margin: 5px 0;">Envie de mieux gérer tes finances ?</p>
-                <a href="https://amzn.to/4tkbD6y" target="_blank" style="color: #0277BD; font-weight: bold; text-decoration: none;">
-                    Découvrir ce guide budget →
-                </a>
-            </div>
-        `;
-    } else {
-        // Si c'est un gros montant, on peut mettre une autre pub ou rien du tout
-        zonePub.innerHTML = `<p style="font-size: 12px; color: #546E7A;">Prends le temps de réfléchir, ton rêve en vaut la peine !</p>`;
+// FONCTION : CHANGER LE TEXTE DU COFFRE
+function modifierCoffre() {
+    const nouveauTexte = prompt("Quel est ton objectif actuel ?", document.getElementById('titre-coffre').innerText);
+    if (nouveauTexte !== null && nouveauTexte !== "") {
+        localStorage.setItem('texteCoffre', nouveauTexte);
+        document.getElementById('titre-coffre').innerText = nouveauTexte;
     }
 }
 
-// Fonction pour charger la photo perso
+function actualiserAffichage() {
+    document.getElementById('label-budget').innerText = "Budget restant : " + window.budgetSemaine + " €";
+}
+
+// FONCTION : LE VERDICT
+function donnerVerdict() {
+    const montant = parseFloat(document.getElementById('montant').value);
+    if(isNaN(montant) || montant <= 0) {
+        alert("Veuillez entrer un montant valide.");
+        return;
+    }
+
+    document.getElementById('saisie-form').style.display = 'none';
+    document.getElementById('verdict-screen').style.display = 'block';
+
+    const titre = document.getElementById('verdict-titre');
+    const msg = document.getElementById('verdict-msg');
+    const zonePub = document.getElementById('zone-pub');
+
+    if (montant <= window.budgetSemaine * 0.15) {
+        titre.innerText = "C'est validé ! ✅";
+        titre.style.color = "#2E7D32";
+        msg.innerText = "C'est une petite dépense raisonnable.";
+    } else if (montant <= window.budgetSemaine) {
+        titre.innerText = "Attention... 🤔";
+        titre.style.color = "#F57C00";
+        msg.innerText = "C'est une grosse partie de ton budget. Ton rêve en vaut-il la peine ?";
+    } else {
+        titre.innerText = "STOP ! 🛑";
+        titre.style.color = "#C62828";
+        msg.innerText = "Tu n'as pas assez de budget pour ça cette semaine.";
+    }
+
+    // GESTION PUB AMAZON (Remplacer les liens par les tiens)
+    if (montant < 50) {
+        zonePub.innerHTML = `
+            <div style="text-align: left; border-left: 4px solid #FF9900; padding-left: 10px;">
+                <span style="color: #FF9900; font-weight: bold; font-size: 11px;">CONSEIL VIVRE MIEUX</span><br>
+                <p style="font-size: 13px; margin: 5px 0;">Apprends à économiser sans effort :</p>
+                <a href="https://amzn.to/4tkbD6y" target="_blank" style="color: #0277BD; font-weight: bold; text-decoration: none; font-size: 14px;">
+                    Découvrir ce guide budget sur Amazon →
+                </a>
+            </div>`;
+    } else {
+        zonePub.innerHTML = `<p style="font-size: 13px; color: #546E7A; margin:0;">Chaque euro économisé te rapproche de ton objectif !</p>`;
+    }
+}
+
+// FONCTION : PHOTO PERSONNALISÉE
 function loadPhoto(event) {
     const output = document.getElementById('photoAffiche');
     const reader = new FileReader();
     reader.onload = function(){
         output.src = reader.result;
-        // On sauvegarde aussi l'image en mémoire !
         localStorage.setItem('maPhotoReve', reader.result);
     };
     reader.readAsDataURL(event.target.files[0]);
 }
 
-// Récupérer la photo sauvegardée au démarrage
-const photoSauvegardee = localStorage.getItem('maPhotoReve');
-if(photoSauvegardee) {
-    document.getElementById('photoAffiche').src = photoSauvegardee;
-}
+// FONCTION : VALIDER L'ACHAT
 function confirmerAchat() {
     const montant = parseFloat(document.getElementById('montant').value);
-    
-    // On calcule le nouveau budget
-    window.budgetSemaine = window.budgetSemaine - montant;
-    
-    // On le sauvegarde dans la mémoire du navigateur
+    window.budgetSemaine -= montant;
     localStorage.setItem('budgetHebdo', window.budgetSemaine);
-    
-    alert("Achat enregistré ! Il te reste " + window.budgetSemaine + " € pour ta semaine.");
-    
-    // On recharge l'app pour revenir à l'accueil avec le nouveau chiffre
+    alert("Achat validé ! Nouveau budget : " + window.budgetSemaine.toFixed(2) + " €");
     location.reload();
 }
 </script>
+
 </body>
 </html>
