@@ -2,7 +2,7 @@
 # 🚀 Vivre Mieux - L'Assistant Budgétaire Intelligent
 
 <p align="center">
-  <img src="screenshot.png" alt="Aperçu de l'application Vivre Mieux" width="350" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <img src="screenshot.png.png" alt="Aperçu de l'application Vivre Mieux" width="350" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 </p>
 
 ---
