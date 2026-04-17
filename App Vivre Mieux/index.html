@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://images.unsplash.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Vivre Mieux - Ton Arbitre de Poche</title>
     <style>
         /* DESIGN GLOBAL */
@@ -155,39 +158,57 @@ window.onload = function() {
     const texteCoffre = localStorage.getItem('texteCoffre');
     const photoSauvegardee = localStorage.getItem('maPhotoReve');
 
-    if (budgetSauvegarde) {
-        window.budgetSemaine = parseFloat(budgetSauvegarde);
+    const budgetParse = parseFloat(budgetSauvegarde);
+    if (budgetSauvegarde !== null && !isNaN(budgetParse) && isFinite(budgetParse)) {
+        window.budgetSemaine = budgetParse;
         actualiserAffichage();
     } else {
         modifierBudget();
     }
 
     if (texteCoffre) {
-        document.getElementById('titre-coffre').innerText = texteCoffre;
+        // innerText sets the value as text, which is safe from HTML/script injection.
+        document.getElementById('titre-coffre').innerText = texteCoffre.slice(0, 120);
     }
 
-    if (photoSauvegardee) {
+    // Only restore the photo if the stored value is a safe image data URL.
+    // This prevents a hypothetically poisoned localStorage value from loading
+    // an arbitrary remote/javascript: URL through the <img src>.
+    if (photoSauvegardee && /^data:image\/(png|jpeg|jpg|gif|webp|bmp|svg\+xml);base64,/i.test(photoSauvegardee)) {
         document.getElementById('photoAffiche').src = photoSauvegardee;
+    } else if (photoSauvegardee) {
+        // Drop any unexpected value rather than trusting it.
+        localStorage.removeItem('maPhotoReve');
     }
 }
 
 // FONCTION : CHANGER LE BUDGET
 function modifierBudget() {
     const nouveau = prompt("Quel est ton budget total pour cette semaine ? (en €)", window.budgetSemaine || "100");
-    if (nouveau !== null && nouveau !== "") {
-        localStorage.setItem('budgetHebdo', nouveau);
-        window.budgetSemaine = parseFloat(nouveau);
-        actualiserAffichage();
+    if (nouveau === null || nouveau === "") {
+        return;
     }
+    const valeur = parseFloat(nouveau);
+    if (isNaN(valeur) || !isFinite(valeur) || valeur < 0 || valeur > 1e9) {
+        alert("Veuillez entrer un budget valide (nombre positif).");
+        return;
+    }
+    localStorage.setItem('budgetHebdo', String(valeur));
+    window.budgetSemaine = valeur;
+    actualiserAffichage();
 }
 
 // FONCTION : CHANGER LE TEXTE DU COFFRE
 function modifierCoffre() {
     const nouveauTexte = prompt("Quel est ton objectif actuel ?", document.getElementById('titre-coffre').innerText);
-    if (nouveauTexte !== null && nouveauTexte !== "") {
-        localStorage.setItem('texteCoffre', nouveauTexte);
-        document.getElementById('titre-coffre').innerText = nouveauTexte;
+    if (nouveauTexte === null || nouveauTexte === "") {
+        return;
     }
+    // Enforce a reasonable length to avoid abusing localStorage as a dumping ground.
+    const texteBorne = nouveauTexte.slice(0, 120);
+    localStorage.setItem('texteCoffre', texteBorne);
+    // innerText (not innerHTML) keeps this safe from HTML/script injection.
+    document.getElementById('titre-coffre').innerText = texteBorne;
 }
 
 function actualiserAffichage() {
@@ -229,7 +250,7 @@ function donnerVerdict() {
             <div style="text-align: left; border-left: 4px solid #FF9900; padding-left: 10px;">
                 <span style="color: #FF9900; font-weight: bold; font-size: 11px;">CONSEIL VIVRE MIEUX</span><br>
                 <p style="font-size: 13px; margin: 5px 0;">Apprends à économiser sans effort :</p>
-                <a href="https://amzn.to/4tkbD6y" target="_blank" style="color: #0277BD; font-weight: bold; text-decoration: none; font-size: 14px;">
+                <a href="https://amzn.to/4tkbD6y" target="_blank" rel="noopener noreferrer nofollow sponsored" style="color: #0277BD; font-weight: bold; text-decoration: none; font-size: 14px;">
                     Découvrir ce guide budget sur Amazon →
                 </a>
             </div>`;
@@ -241,19 +262,51 @@ function donnerVerdict() {
 // FONCTION : PHOTO PERSONNALISÉE
 function loadPhoto(event) {
     const output = document.getElementById('photoAffiche');
+    const file = event.target.files && event.target.files[0];
+    if (!file) {
+        return;
+    }
+    // The accept="image/*" attribute is client-side only and bypassable, so
+    // re-validate the MIME type and size here. Reject SVG because it can
+    // contain inline <script> and be abused for XSS when rendered.
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp'];
+    const MAX_BYTES = 2 * 1024 * 1024; // 2 MB keeps us well under the localStorage quota.
+    if (!ALLOWED_TYPES.includes(file.type)) {
+        alert("Format d'image non supporté. Utilise PNG, JPEG, GIF, WebP ou BMP.");
+        event.target.value = '';
+        return;
+    }
+    if (file.size > MAX_BYTES) {
+        alert("Image trop volumineuse (max 2 Mo).");
+        event.target.value = '';
+        return;
+    }
     const reader = new FileReader();
     reader.onload = function(){
-        output.src = reader.result;
-        localStorage.setItem('maPhotoReve', reader.result);
+        const result = reader.result;
+        if (typeof result !== 'string' || !/^data:image\/(png|jpeg|jpg|gif|webp|bmp);base64,/i.test(result)) {
+            return;
+        }
+        output.src = result;
+        try {
+            localStorage.setItem('maPhotoReve', result);
+        } catch (e) {
+            // localStorage quota exceeded - keep the in-memory preview but warn the user.
+            alert("Impossible de sauvegarder l'image (espace insuffisant).");
+        }
     };
-    reader.readAsDataURL(event.target.files[0]);
+    reader.readAsDataURL(file);
 }
 
 // FONCTION : VALIDER L'ACHAT
 function confirmerAchat() {
     const montant = parseFloat(document.getElementById('montant').value);
+    if (isNaN(montant) || !isFinite(montant) || montant <= 0) {
+        alert("Montant invalide.");
+        return;
+    }
     window.budgetSemaine -= montant;
-    localStorage.setItem('budgetHebdo', window.budgetSemaine);
+    localStorage.setItem('budgetHebdo', String(window.budgetSemaine));
     alert("Achat validé ! Nouveau budget : " + window.budgetSemaine.toFixed(2) + " €");
     location.reload();
 }
