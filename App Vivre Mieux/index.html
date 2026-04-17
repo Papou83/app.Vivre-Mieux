@@ -7,6 +7,14 @@
     <title>Vivre Mieux - Ton Arbitre de Poche</title>
     <style>
         /* DESIGN GLOBAL */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+        }
+
         body {
             background-color: #E0F7FA;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,17 +23,20 @@
             align-items: center;
             padding: 20px;
             color: #01579B;
+            min-height: 100vh;
         }
 
         .header { text-align: center; margin-bottom: 20px; }
-        
+
+        .header h1 { margin: 0 0 8px; }
+
         /* ZONE COFFRE AVEC ROUAGE À GAUCHE */
         .coffre {
             background: white;
             padding: 20px;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 95%;
+            width: 100%;
             max-width: 400px;
             text-align: center;
             margin-bottom: 20px;
@@ -40,6 +51,8 @@
             border: none;
             font-size: 20px;
             cursor: pointer;
+            line-height: 1;
+            padding: 4px;
         }
 
         .pouce { font-size: 45px; margin-bottom: 5px; }
@@ -49,9 +62,8 @@
             background: #B3E5FC;
             padding: 20px;
             border-radius: 20px;
-            width: 95%;
+            width: 100%;
             max-width: 400px;
-            box-sizing: border-box;
         }
 
         .btn-edit-budget {
@@ -73,7 +85,6 @@
             border: 2px solid #81D4FA;
             font-size: 18px;
             margin-top: 10px;
-            box-sizing: border-box;
         }
 
         .btn-principal {
@@ -94,7 +105,7 @@
         #verdict-screen {
             display: none;
             text-align: center;
-            width: 95%;
+            width: 100%;
             max-width: 400px;
         }
 
@@ -104,6 +115,30 @@
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             cursor: pointer;
+        }
+
+        /* RESPONSIVE : petits écrans */
+        @media (max-width: 400px) {
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .coffre,
+            .saisie-zone {
+                padding: 16px;
+            }
+
+            .btn-principal {
+                font-size: 16px;
+            }
+
+            .pouce {
+                font-size: 40px;
+            }
         }
     </style>
 </head>
