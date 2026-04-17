@@ -8,13 +8,15 @@
 ---
 
 ## 💡 Le Concept
-**Vivre Mieux** est une application web légère conçue pour vous aider à reprendre le contrôle sur vos finances. L'outil vous aide à lutter contre les achats impulsifs en confrontant chaque dépense à votre véritable objectif de vie (voyage, achat important, épargne).
+**Reprenez le pouvoir sur votre argent — sans tableur, sans stress.**
 
-## ✨ Fonctionnalités Clés
-* **Verdict Instantané :** Calcule si un achat est raisonnable selon votre budget restant.
-* **Visualisation du Rêve :** Affiche la photo de votre objectif pour vous motiver à économiser.
-* **Sauvegarde Locale :** Vos données (budget, photos) restent sur votre téléphone (LocalStorage).
-* **Bons Plans Intégrés :** Suggestions de solutions d'économie via le programme Amazon Partenaires.
+**Vivre Mieux** transforme chaque tentation d'achat en décision éclairée. En un clic, confrontez vos envies à vos vrais objectifs (voyage, projet, épargne) et dites adieu aux achats impulsifs.
+
+## ✨ Pourquoi vous allez l'adopter
+* 🎯 **Verdict en 1 seconde** — savez tout de suite si vous pouvez vous le permettre.
+* 🌴 **Votre rêve sous les yeux** — la photo de votre objectif vous motive à chaque dépense.
+* 🔒 **100 % privé** — vos données ne quittent jamais votre téléphone (LocalStorage).
+* 💰 **Bons plans malins** — des suggestions pour économiser encore plus (Amazon Partenaires).
 
 ## 🛠️ Installation & Utilisation
 1. Accédez à l'application : **[bit.ly/vivremieux83](https://bit.ly/vivremieux83)**
